@@ -40,39 +40,57 @@
             android:layout_width="match_parent"
             android:layout_height="123dp"
             android:layout_below="@+id/button_start"
-            android:layout_marginBottom="10dp"
-            android:layout_marginEnd="10dp"
             android:layout_marginStart="15dp"
-            android:layout_marginTop="120dp"
+            android:layout_marginTop="85dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
             android:enabled="false"
             android:gravity="top"
             android:inputType="textMultiLine"
             android:singleLine="false" />
 
+        <EditText
+            android:id="@+id/question_text_box"
+            android:layout_width="384dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/button_start"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:enabled="false"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:singleLine="false"
+            android:text='Press start and say "Bonjour!"' />
+
         <Switch
             android:id="@+id/useDeepSpeech"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:layout_below="@+id/switchTranscriptions"
-            android:text="Use DeepSpeech" />
+            android:layout_alignParentEnd="true"
+            android:text="Use DeepSpeech"
+            android:visibility="invisible" />
 
         <Switch
             android:id="@+id/switchTranscriptions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/switchSamples"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_below="@+id/switchSamples"
-            android:text="Store Transcriptions" />
+            android:text="Store Transcriptions"
+            android:visibility="invisible" />
 
         <Switch
             android:id="@+id/switchSamples"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:layout_below="@+id/graph"
-            android:text="Store Samples" />
+            android:layout_alignParentEnd="true"
+            android:text="Store Samples"
+            android:visibility="invisible" />
 
         <EditText
             android:id="@+id/txtProdutTag"
@@ -83,7 +101,8 @@
             android:layout_marginBottom="-50dp"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="ProductTag" />
+            android:text="ProductTag"
+            android:visibility="invisible" />
 
         <EditText
             android:id="@+id/txtLanguage"
@@ -94,7 +113,8 @@
             android:layout_marginBottom="-80dp"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="eng" />
+            android:text="fra"
+            android:visibility="invisible" />
     
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

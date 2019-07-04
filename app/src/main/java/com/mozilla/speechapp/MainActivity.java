@@ -137,7 +137,8 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
         mGraph.getViewport().setScalable(true);
         mGraph.getViewport().setScalableY(true);
         mGraph.getViewport().setScrollable(true); // enables horizontal scrolling
-        mGraph.getViewport().setScrollableY(true); // enables vertical scrolling
+        mGraph.getViewport().setScrollableY(true);
+        mGraph.getViewport().setMaxX(1000);// enables vertical scrolling
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -156,7 +157,13 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
                     break;
                 case STT_RESULT:
                     String message = String.format("Success: %s (%s)", ((STTResult)aPayload).mTranscription, ((STTResult)aPayload).mConfidence);
-                    mPlain_text_input.append(message + "\n");
+                    if (message.equals("Success:  (1.0)")) {
+                        mPlain_text_input.append("Please try again and speak louder!" + "\n");
+                    }
+                    else {
+                        Log.i("wtf3", message);
+                        mPlain_text_input.append(message + "\n");
+                    }
                     removeListener();
                     break;
                 case START_LISTEN:
@@ -267,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
         request.setTitle("DeepSpeech " + aLang);
         request.setDescription("DeepSpeech Model");
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setVisibleInDownloadsUi(false);
+        request.setVisibleInDownloadsUi(true);
         request.setDestinationUri(modelZipFile);
         sDownloadId = sDownloadManager.enqueue(request);
 

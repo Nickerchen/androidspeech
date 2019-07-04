@@ -203,6 +203,7 @@ class LocalSpeechRecognition implements Runnable {
 
     private static String kBaseModelURL = "https://github.com/lissyx/DeepSpeech/releases/download/android-test/";
 
+
     protected LocalSpeechRecognition(int aSampleRate, int aChannels, Vad aVad,
                                 MozillaSpeechService aService) {
         Log.e(this._tag, "new LocalSpeechRecognition()");
