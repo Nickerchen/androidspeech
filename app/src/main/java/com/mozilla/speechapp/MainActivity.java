@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 
 import android.database.Cursor;
 
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -42,11 +43,22 @@ import com.mozilla.speechlibrary.MozillaSpeechService;
 import com.mozilla.speechlibrary.STTResult;
 import com.mozilla.speechmodule.R;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
 
 import net.lingala.zip4j.core.ZipFile;
 
+import com.opencsv.*;
+
 import static android.support.constraint.Constraints.TAG;
+
 
 public class MainActivity extends AppCompatActivity implements ISpeechRecognitionListener, CompoundButton.OnCheckedChangeListener {
 
@@ -137,8 +149,9 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
         mGraph.getViewport().setScalable(true);
         mGraph.getViewport().setScalableY(true);
         mGraph.getViewport().setScrollable(true); // enables horizontal scrolling
-        mGraph.getViewport().setScrollableY(true);
-        mGraph.getViewport().setMaxX(1000);// enables vertical scrolling
+        mGraph.getViewport().setScrollableY(true);// enables vertical scrolling
+        mGraph.getViewport().setMaxX(1000);
+
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -156,13 +169,23 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
                     mSeries1.appendData(new DataPoint(Math.round(mPointx) + 1, (double)aPayload * -1), true, 3000);
                     break;
                 case STT_RESULT:
-                    String message = String.format("Success: %s (%s)", ((STTResult)aPayload).mTranscription, ((STTResult)aPayload).mConfidence);
-                    if (message.equals("Success:  (1.0)")) {
+                    String word;
+                    String message = String.format("Success: %s (%s)", word =((STTResult)aPayload).mTranscription, ((STTResult)aPayload).mConfidence);
+                    if (word.equals("")) {
+                        InputStream inputStream = getResources().openRawResource(R.raw.frenchphoneticdictionary);
+                        CSVFile csvFile = new CSVFile(inputStream);
+                        List scoreList = csvFile.read();
+                        Log.i("wtf", "bla"+ scoreList.size());
                         mPlain_text_input.append("Please try again and speak louder!" + "\n");
                     }
-                    else {
-                        Log.i("wtf3", message);
+                    else if (word.equals("test")){
                         mPlain_text_input.append(message + "\n");
+                        mPlain_text_input.append("Perfect" + "\n");
+                    }
+                    else {
+                        mPlain_text_input.append(message + "\n");
+                        double evaluation = similarity(word, "test");
+                        mPlain_text_input.append("Score:" + evaluation +  "\n");
                     }
                     removeListener();
                     break;
@@ -235,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
 
     }
 
+
     public void maybeDownloadOrExtractModel(String aModelsPath, String aLang) {
         String zipFile   = aModelsPath + "/" + aLang + ".zip";
         Uri modelZipURL  = Uri.parse(mMozillaSpeechService.getModelDownloadURL());
@@ -280,4 +304,77 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
 
         getApplicationContext().registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
+
+    public static double similarity(String s1, String s2) {
+        String longer = s1, shorter = s2;
+        if (s1.length() < s2.length()) { // longer should always have greater length
+            longer = s2; shorter = s1;
+        }
+        int longerLength = longer.length();
+        if (longerLength == 0) { return 1.0; /* both strings are zero length */ }
+
+        return (longerLength - editDistance(longer, shorter)) / (double) longerLength;
+    }
+    // Example implementation of the Levenshtein Edit Distance
+    // See http://rosettacode.org/wiki/Levenshtein_distance#Java
+    public static int editDistance(String s1, String s2) {
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+
+        int[] costs = new int[s2.length() + 1];
+        for (int i = 0; i <= s1.length(); i++) {
+            int lastValue = i;
+            for (int j = 0; j <= s2.length(); j++) {
+                if (i == 0)
+                    costs[j] = j;
+                else {
+                    if (j > 0) {
+                        int newValue = costs[j - 1];
+                        if (s1.charAt(i - 1) != s2.charAt(j - 1))
+                            newValue = Math.min(Math.min(newValue, lastValue),
+                                    costs[j]) + 1;
+                        costs[j - 1] = lastValue;
+                        lastValue = newValue;
+                    }
+                }
+            }
+            if (i > 0)
+                costs[s2.length()] = lastValue;
+        }
+        return costs[s2.length()];
+    }
+
+    public class CSVFile {
+        InputStream inputStream;
+
+        public CSVFile(InputStream inputStream){
+            this.inputStream = inputStream;
+        }
+
+        public List read(){
+            List resultList = new ArrayList();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            try {
+                String csvLine;
+                while ((csvLine = reader.readLine()) != null) {
+                    String[] row = csvLine.split(",");
+                    resultList.add(row);
+                }
+            }
+            catch (IOException ex) {
+                throw new RuntimeException("Error in reading CSV file: "+ex);
+            }
+            finally {
+                try {
+                    inputStream.close();
+                }
+                catch (IOException e) {
+                    throw new RuntimeException("Error while closing input stream: "+e);
+                }
+            }
+            return resultList;
+        }
+    }
+
+
 }

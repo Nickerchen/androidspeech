@@ -62,7 +62,7 @@
             android:gravity="top"
             android:inputType="textMultiLine"
             android:singleLine="false"
-            android:text='Press start and say "Bonjour!"' />
+            android:text='Press start and say "test!"' />
 
         <Switch
             android:id="@+id/useDeepSpeech"
