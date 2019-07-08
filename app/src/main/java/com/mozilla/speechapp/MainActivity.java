@@ -169,41 +169,69 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
                     mSeries1.appendData(new DataPoint(Math.round(mPointx) + 1, (double)aPayload * -1), true, 3000);
                     break;
                 case STT_RESULT:
-                    String word;
-                    String phonetic;
+                    String userword = "";
+                    String userphonetic = "";
+                    String taskword = "";
+                    String taskphonetic = "";
+
+                    taskword = "test";
 
                     InputStream inputStream = getResources().openRawResource(R.raw.frenchphoneticdictionary);
                     CSVFile csvFile = new CSVFile(inputStream);
                     List<String[]> phoneticList = csvFile.read();
 
-                    String message = String.format("Success: %s (%s)", word =((STTResult)aPayload).mTranscription, ((STTResult)aPayload).mConfidence);
-                    word = word.replaceAll("[^a-zA-Z0-9]", "");
+                    String message = String.format("Result: %s", userword =((STTResult)aPayload).mTranscription);
+                    userword = userword.replaceAll("[^a-zA-Z0-9]", "");
 
                     // Too quiet
-                    if (word.equals("")) {
+                    if (userword.equals("")) {
 
                         mPlain_text_input.append("Please try again and speak louder!" + "\n");
                     }
 
                     //Perfect match
-                    else if (word.equals("test")){
+                    else if (userword.equals(taskword)){
                         mPlain_text_input.append(message + "\n");
-                        mPlain_text_input.append("Perfect" + "\n");
+                        mPlain_text_input.append("Perfect pronunciation" + "\n");
                     }
 
                     //Wrong match
                     else {
+                        Log.i("wtf", userword);
 
                         for(String[] phoneticData:phoneticList) {
-                            if (phoneticData[0].equals(word)) {
-                                phonetic = phoneticData[1];
-                                mPlain_text_input.append("You said:" + phonetic +  "\n");
+                            if (phoneticData[0].equals(userword)) {
+                                userphonetic = phoneticData[1];
+                            }
+                            if (phoneticData[0].equals(taskword)) {
+                                taskphonetic = phoneticData[1];
+                                Log.i("wtf", taskword);
+                                mPlain_text_input.append("You should say: " + taskword + " (" + taskphonetic + ")" + "\n");
+                            }
+                        }
+                        mPlain_text_input.append("You said:" + userword + " (" + userphonetic + ")" + "\n");
+
+                        //mPlain_text_input.append(message + "\n");
+                        if ( userword != "" && taskword != "") {
+                            double wordevaluation = similarity(userword, taskword);
+                            String wordevaluationrounded = String.format("%.2f", wordevaluation);
+                            mPlain_text_input.append("Word distance:" + wordevaluationrounded +  "\n");
+
+                        }
+
+                        if ( userphonetic != "" && taskphonetic != "") {
+                            double phoneticevaluation = similarity(userphonetic, taskphonetic);
+                            String phoneticevaluationrounded = String.format("%.2f", phoneticevaluation);
+                            mPlain_text_input.append("Phonetic distance:" + phoneticevaluationrounded +  "\n");
+                            if (phoneticevaluation > 0.5) {
+                                mPlain_text_input.append("Good job" + "\n");
+                            }
+                            else {
+                                mPlain_text_input.append("Try again" +  "\n");
+
                             }
                         }
 
-                        mPlain_text_input.append(message + "\n");
-                        double evaluation = similarity(word, "test");
-                        mPlain_text_input.append("Score:" + evaluation +  "\n");
                     }
                     removeListener();
                     break;
