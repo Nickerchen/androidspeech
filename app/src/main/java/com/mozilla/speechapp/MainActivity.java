@@ -170,19 +170,37 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
                     break;
                 case STT_RESULT:
                     String word;
+                    String phonetic;
+
+                    InputStream inputStream = getResources().openRawResource(R.raw.frenchphoneticdictionary);
+                    CSVFile csvFile = new CSVFile(inputStream);
+                    List<String[]> phoneticList = csvFile.read();
+
                     String message = String.format("Success: %s (%s)", word =((STTResult)aPayload).mTranscription, ((STTResult)aPayload).mConfidence);
+                    word = word.replaceAll("[^a-zA-Z0-9]", "");
+
+                    // Too quiet
                     if (word.equals("")) {
-                        InputStream inputStream = getResources().openRawResource(R.raw.frenchphoneticdictionary);
-                        CSVFile csvFile = new CSVFile(inputStream);
-                        List scoreList = csvFile.read();
-                        Log.i("wtf", "bla"+ scoreList.size());
+
                         mPlain_text_input.append("Please try again and speak louder!" + "\n");
                     }
+
+                    //Perfect match
                     else if (word.equals("test")){
                         mPlain_text_input.append(message + "\n");
                         mPlain_text_input.append("Perfect" + "\n");
                     }
+
+                    //Wrong match
                     else {
+
+                        for(String[] phoneticData:phoneticList) {
+                            if (phoneticData[0].equals(word)) {
+                                phonetic = phoneticData[1];
+                                mPlain_text_input.append("You said:" + phonetic +  "\n");
+                            }
+                        }
+
                         mPlain_text_input.append(message + "\n");
                         double evaluation = similarity(word, "test");
                         mPlain_text_input.append("Score:" + evaluation +  "\n");
@@ -343,38 +361,5 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
         }
         return costs[s2.length()];
     }
-
-    public class CSVFile {
-        InputStream inputStream;
-
-        public CSVFile(InputStream inputStream){
-            this.inputStream = inputStream;
-        }
-
-        public List read(){
-            List resultList = new ArrayList();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            try {
-                String csvLine;
-                while ((csvLine = reader.readLine()) != null) {
-                    String[] row = csvLine.split(",");
-                    resultList.add(row);
-                }
-            }
-            catch (IOException ex) {
-                throw new RuntimeException("Error in reading CSV file: "+ex);
-            }
-            finally {
-                try {
-                    inputStream.close();
-                }
-                catch (IOException e) {
-                    throw new RuntimeException("Error while closing input stream: "+e);
-                }
-            }
-            return resultList;
-        }
-    }
-
 
 }
