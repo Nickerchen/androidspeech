@@ -195,12 +195,12 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
                     //Perfect match
                     else if (userword.equals(taskword)){
                         mPlain_text_input.append(message + "\n");
-                        mPlain_text_input.append("Perfect pronunciation" + "\n");
+                        mPlain_text_input.append("Perfect pronunciation! :)" + "\n");
                     }
 
                     //Wrong match
                     else {
-                        Log.i("wtf", userword);
+                        Log.i("logthis userword", userword);
 
                         for(String[] phoneticData:phoneticList) {
                             if (phoneticData[0].equals(userword)) {
@@ -208,25 +208,26 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
                             }
                             if (phoneticData[0].equals(taskword)) {
                                 taskphonetic = phoneticData[1];
-                                Log.i("wtf", taskword);
+                                Log.i("logthis taskword", taskword);
                             }
                         }
                         mPlain_text_input.append("You should say: " + taskword + " (" + taskphonetic + ")" + "\n");
-                        mPlain_text_input.append("You said:" + userword + " (" + userphonetic + ")" + "\n");
+                        mPlain_text_input.append("You said: " + userword + " (" + userphonetic + ")" + "\n");
 
-                        //mPlain_text_input.append(message + "\n");
-                        if ( userword != "" && taskword != "") {
-                            double wordevaluation = similarity(userword, taskword);
-                            String wordevaluationrounded = String.format("%.2f", wordevaluation);
-                            mPlain_text_input.append("Word distance score:" + wordevaluationrounded +  "\n");
-
-                        }
-
+                        //qualitative feedback
                         if ( userphonetic != "" && taskphonetic != "") {
                             double phoneticevaluation = similarity(userphonetic, taskphonetic);
                             String phoneticevaluationrounded = String.format("%.2f", phoneticevaluation);
-                            mPlain_text_input.append("Phonetic distance:" + phoneticevaluationrounded +  "\n");
+                            mPlain_text_input.append("Phonetic similarity: " + phoneticevaluationrounded +  "\n");
                             if (phoneticevaluation > 0.5) {
+                                mPlain_text_input.append("Good job" + "\n");
+                            }
+
+                        } else if ( userword != "" && taskword != "") {
+                            double wordevaluation = similarity(userword, taskword);
+                            String wordevaluationrounded = String.format("%.2f", wordevaluation);
+                            mPlain_text_input.append("Word similarity: " + wordevaluationrounded +  "\n");
+                            if (wordevaluation > 0.5) {
                                 mPlain_text_input.append("Good job" + "\n");
                             }
                             else {
@@ -234,6 +235,8 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
 
                             }
                         }
+
+
 
                     }
                     removeListener();
