@@ -194,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
 
                     //Perfect match
                     else if (userword.equals(taskword)){
+                        Log.i("logthis perfectmatch", userword);
                         mPlain_text_input.append(message + "\n");
                         mPlain_text_input.append("Perfect pronunciation! :)" + "\n");
                     }
@@ -235,9 +236,6 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
 
                             }
                         }
-
-
-
                     }
                     removeListener();
                     break;
