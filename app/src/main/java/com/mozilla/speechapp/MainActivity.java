@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
         txtProdutTag = findViewById(R.id.txtProdutTag);
         txtLanguage = findViewById(R.id.txtLanguage);
 
+
         mPlain_text_input = findViewById(R.id.plain_text_input);
         buttonStart.setOnClickListener((View v) ->  {
             try {
@@ -174,7 +175,9 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
                     String taskword = "";
                     String taskphonetic = "";
 
-                    taskword = "test";
+                    EditText question_text_box;
+                    question_text_box = findViewById(R.id.question_text_box);
+                    taskword = question_text_box.getText().toString();
 
                     InputStream inputStream = getResources().openRawResource(R.raw.frenchphoneticdictionary);
                     CSVFile csvFile = new CSVFile(inputStream);
@@ -206,16 +209,16 @@ public class MainActivity extends AppCompatActivity implements ISpeechRecognitio
                             if (phoneticData[0].equals(taskword)) {
                                 taskphonetic = phoneticData[1];
                                 Log.i("wtf", taskword);
-                                mPlain_text_input.append("You should say: " + taskword + " (" + taskphonetic + ")" + "\n");
                             }
                         }
+                        mPlain_text_input.append("You should say: " + taskword + " (" + taskphonetic + ")" + "\n");
                         mPlain_text_input.append("You said:" + userword + " (" + userphonetic + ")" + "\n");
 
                         //mPlain_text_input.append(message + "\n");
                         if ( userword != "" && taskword != "") {
                             double wordevaluation = similarity(userword, taskword);
                             String wordevaluationrounded = String.format("%.2f", wordevaluation);
-                            mPlain_text_input.append("Word distance:" + wordevaluationrounded +  "\n");
+                            mPlain_text_input.append("Word distance score:" + wordevaluationrounded +  "\n");
 
                         }
 
