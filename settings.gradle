@@ -1,1 +1,1 @@
-include ':app', ':mozillaspeechlibrary', ':commons-text-1.7'
+include ':app', ':mozillaspeechlibrary'
